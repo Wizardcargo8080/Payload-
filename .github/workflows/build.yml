@@ -20,14 +20,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Folder-Shortcut
-          path: "*.lnk" # Added quotes here to fix the Line 34 error
-          $Shortcut.Save()
-
-      - name: Upload Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: PySilon-Package
-          path: |
-            dist/*.exe
-            dist/*.lnk
- 
+          path: "*.lnk"
